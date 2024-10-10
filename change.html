@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Compteur de vues</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Compteur de Vues</h1>
+        <div class="view-message {{.Parite}}">
+            <p>{{.Message}}</p>
+            <button class="button-89" role="button" onclick="refreshPage()">Rafraichir</button>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    function refreshPage(){
+        location.reload();
+    }
+</script>

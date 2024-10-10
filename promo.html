@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ .Nom }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>{{ .Nom }}</h1>
+        
+        <div class="class-info">
+            <p><strong>Filière :</strong> {{ .Filiere }}</p>
+            <p><strong>Niveau :</strong> {{ .Niveau }}</p>
+            <p><strong>Nombre d'étudiants :</strong> {{ .NombreEtudiants }}</p>
+        </div>
+
+        <div class="student-list">
+            <h2>Liste des étudiants</h2>
+            {{ range .Etudiants }}
+                <div class="etudiant">
+                    {{ if eq .Sexe "M" }}
+                        <img src="/static/male.png" alt="Masculin">
+                    {{ else }}
+                        <img src="/static/female.png" alt="Féminin">
+                    {{ end }}
+                    <span>{{ .Prenom }} {{ .Nom }}, {{ .Age }} ans</span>
+                </div>
+            {{ end }}
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 - {{ .Nom }}
+    </footer>
+</body>
+</html>
