@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"regexp"
 	"sync"
 )
 
@@ -50,7 +51,7 @@ func promoHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, classe)
 }
 
-func changeHandler(w http.ResponseWriter, r *http.Request) {
+func changeHandler(w http.ResponseWriter, _ *http.Request) {
 	mu.Lock()
 	viewCounter++
 	count := viewCounter
@@ -74,17 +75,85 @@ func changeHandler(w http.ResponseWriter, r *http.Request) {
 	changeTmpl.Execute(w, data)
 }
 
+// CHALENG 3
+
+var (
+	formTmpl    = template.Must(template.ParseFiles("templates/user_form.html"))
+	displayTmpl = template.Must(template.ParseFiles("templates/user_display.html"))
+	errorTmpl   = template.Must(template.ParseFiles("templates/user_error.html"))
+	currentUser User
+)
+
+type User struct {
+	Nom           string
+	Prenom        string
+	DateNaissance string
+	Sexe          string
+}
+
+func formHandler(w http.ResponseWriter, r *http.Request) {
+	formTmpl.Execute(w, nil)
+}
+
+func treatmentHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Redirect(w, r, "/user/form", http.StatusSeeOther)
+		return
+	}
+
+	nom := r.FormValue("nom")
+	prenom := r.FormValue("prenom")
+	dateNaissance := r.FormValue("date_naissance")
+	sexe := r.FormValue("sexe")
+
+	isValid := validateUserData(nom, prenom, sexe)
+	if !isValid {
+		http.Redirect(w, r, "/user/error", http.StatusSeeOther)
+		return
+	}
+
+	currentUser = User{
+		Nom:           nom,
+		Prenom:        prenom,
+		DateNaissance: dateNaissance,
+		Sexe:          sexe,
+	}
+
+	http.Redirect(w, r, "/user/display", http.StatusSeeOther)
+}
+
+func displayHandler(w http.ResponseWriter, r *http.Request) {
+	if currentUser.Nom == "" || currentUser.Prenom == "" || currentUser.DateNaissance == "" || currentUser.Sexe == "" {
+		http.Redirect(w, r, "/user/form", http.StatusSeeOther)
+		return
+	}
+
+	displayTmpl.Execute(w, currentUser)
+}
+
+func errorHandler(w http.ResponseWriter, r *http.Request) {
+	errorTmpl.Execute(w, nil)
+}
+
+func validateUserData(nom, prenom, sexe string) bool {
+	validSexe := sexe == "masculin" || sexe == "féminin" || sexe == "autre"
+	validNomPrenom := regexp.MustCompile(`^[A-Za-z]{1,32}$`).MatchString
+
+	return validNomPrenom(nom) && validNomPrenom(prenom) && validSexe
+}
+
 func main() {
-	// Sert les fichiers statiques (images et CSS)
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	// Route pour afficher les promotions
 	http.HandleFunc("/promo", promoHandler)
 
-	// Route pour afficher le challenge 2 - Compteur de vues
 	http.HandleFunc("/change", changeHandler)
 
-	// Démarrer le serveur
+	http.HandleFunc("/user/form", formHandler)
+	http.HandleFunc("/user/treatment", treatmentHandler)
+	http.HandleFunc("/user/display", displayHandler)
+	http.HandleFunc("/user/error", errorHandler)
+
 	http.ListenAndServe(":8080", nil)
 }

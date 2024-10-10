@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulaire Utilisateur</title>
+    <link rel="stylesheet" href="/static/style_form.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Formulaire d'Informations</h1>
+        <form action="/user/treatment" method="post">
+            <label for="nom">Nom:</label>
+            <input type="text" id="nom" name="nom" required>
+
+            <label for="prenom">Prénom:</label>
+            <input type="text" id="prenom" name="prenom" required>
+
+            <label for="date_naissance">Date de Naissance:</label>
+            <input type="date" id="date_naissance" name="date_naissance" required>
+
+            <label for="sexe">Sexe:</label>
+            <select id="sexe" name="sexe" required>
+                <option value="masculin">Masculin</option>
+                <option value="féminin">Féminin</option>
+                <option value="autre">Non-binaire</option>
+            </select>
+
+            <input type="submit" value="Soumettre">
+        </form>
+    </div>
+</body>
+</html>
